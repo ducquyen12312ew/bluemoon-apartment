@@ -367,176 +367,30 @@ app.get("/logout", (req, res) => {
 
 app.get("/admin/dashboard", ensureAuthenticated, ensureAdmin, async (req, res) => {
     try {
-        console.log("Loading admin dashboard...");
-        
-        // Get real statistics from database
+        // COMMENT TẤT CẢ DATABASE QUERIES
+        /*
         const totalApartments = await ApartmentCollection.countDocuments();
-        const totalResidents = await ResidentCollection.countDocuments();
+        const totalResidents = await ResidentCollection.countDocuments();  
+        const khoanThuList = await KhoanThuCollection.find().sort({ ngayTao: -1 });
+        */
         
-        // Get payment stats
-        const khoanThuList = await KhoanThuCollection.find();
-        const nopTienList = await NopTienCollection.find();
-        
-        // Calculate payment percentage
-        let totalPaymentsExpected = 0;
-        let totalPaymentsReceived = 0;
-        let paymentPercentage = 0;
-        let unpaidHouseholds = 0;
-        
-        if (khoanThuList.length > 0) {
-            // For mandatory payments only (loaiKhoanThu === 0)
-            const mandatoryPayments = khoanThuList.filter(kt => kt.loaiKhoanThu === 0);
-            
-            if (mandatoryPayments.length > 0) {
-                totalPaymentsExpected = mandatoryPayments.length * totalApartments;
-                
-                // Count unique apartment-payment combinations
-                const uniquePayments = new Set();
-                nopTienList.forEach(payment => {
-                    // Find the khoanThu document
-                    const khoanThuId = payment.khoanThu.toString();
-                    const khoanThu = khoanThuList.find(kt => kt._id.toString() === khoanThuId);
-                    
-                    // Only count mandatory payments
-                    if (khoanThu && khoanThu.loaiKhoanThu === 0) {
-                        uniquePayments.add(`${payment.canHo || 'unknown'}-${khoanThuId}`);
-                    }
-                });
-                
-                totalPaymentsReceived = uniquePayments.size;
-            }
-            
-            // Calculate percentages
-            paymentPercentage = totalPaymentsExpected > 0 
-                ? ((totalPaymentsReceived / totalPaymentsExpected) * 100).toFixed(1) 
-                : 0;
-                
-            // Calculate unpaid households
-            const uniquePayingHouseholds = new Set();
-            nopTienList.forEach(payment => {
-                if (payment.canHo) {
-                    uniquePayingHouseholds.add(payment.canHo);
-                }
-            });
-            
-            unpaidHouseholds = totalApartments - uniquePayingHouseholds.size;
-        }
-        
-        // Ensure we have reasonable values even if calculation returns zero
-        paymentPercentage = paymentPercentage > 0 ? paymentPercentage : '0.0';
-        unpaidHouseholds = unpaidHouseholds >= 0 ? unpaidHouseholds : 0;
-        
-        // Get monthly payment history for chart
-        // This will group payments by month and calculate totals
-        const monthlyPaymentsMap = new Map();
-        
-        // Define last 7 months for chart
-        const today = new Date();
-        for (let i = 6; i >= 0; i--) {
-            const month = new Date(today.getFullYear(), today.getMonth() - i, 1);
-            const monthLabel = `T${month.getMonth() + 1}/${month.getFullYear()}`;
-            monthlyPaymentsMap.set(monthLabel, { paid: 0, total: 0 });
-        }
-        
-        // Process actual payments
-        nopTienList.forEach(payment => {
-            const date = new Date(payment.ngayNop);
-            const monthLabel = `T${date.getMonth() + 1}/${date.getFullYear()}`;
-            
-            if (monthlyPaymentsMap.has(monthLabel)) {
-                const monthData = monthlyPaymentsMap.get(monthLabel);
-                monthData.paid += payment.soTien;
-                monthlyPaymentsMap.set(monthLabel, monthData);
-            }
-        });
-        
-        // Convert to array for the template
-        const monthlyData = Array.from(monthlyPaymentsMap, ([month, data]) => ({
-            month,
-            paid: Math.round(data.paid / 1000), // Convert to thousands for better display
-            total: 30 // Placeholder, you can calculate this based on your data
-        }));
-        
-        // Get payment status breakdown for pie chart
-        const now = new Date();
-        const onTimeCount = nopTienList.filter(p => p.trangThai === 'on-time').length;
-        const lateCount = nopTienList.filter(p => p.trangThai === 'late').length;
-        const partialCount = nopTienList.filter(p => p.trangThai === 'partial').length;
-        
-        const paymentBreakdown = {
-            onTime: onTimeCount || 40,
-            late: lateCount || 30,
-            unpaid: unpaidHouseholds || 10,
-            exempt: 20 // Placeholder, you might need to calculate this differently
-        };
-
-        // ===== THÊM MỚI: Lấy lịch sử khoản thu =====
-        let recentHistory = [];
-        let historyStats = { create: 0, edit: 0, delete: 0 };
-        
-        try {
-            console.log("Fetching history data...");
-            
-            // Kiểm tra xem KhoanThuHistoryCollection có tồn tại không
-            if (typeof KhoanThuHistoryCollection !== 'undefined') {
-                // Lấy lịch sử gần nhất
-                recentHistory = await KhoanThuHistoryCollection.find()
-                    .sort({ performedAt: -1 })
-                    .limit(10);
-                
-                console.log("Recent history found:", recentHistory.length);
-                
-                // Thống kê lịch sử
-                const historyStatsData = await KhoanThuHistoryCollection.aggregate([
-                    {
-                        $group: {
-                            _id: "$actionType",
-                            count: { $sum: 1 }
-                        }
-                    }
-                ]);
-
-                historyStatsData.forEach(stat => {
-                    if (stat._id === 'CREATE') historyStats.create = stat.count;
-                    if (stat._id === 'EDIT') historyStats.edit = stat.count;
-                    if (stat._id === 'DELETE') historyStats.delete = stat.count;
-                });
-                
-                console.log("History stats:", historyStats);
-            } else {
-                console.log("KhoanThuHistoryCollection not available");
-            }
-            
-        } catch (historyError) {
-            console.error("Error loading history:", historyError);
-            // Sử dụng dữ liệu mặc định nếu có lỗi
-            recentHistory = [];
-            historyStats = { create: 0, edit: 0, delete: 0 };
-        }
-
-        console.log("Rendering dashboard with data:", {
-            totalApartments,
-            totalResidents,
-            paymentPercentage,
-            unpaidHouseholds,
-            historyCount: recentHistory.length,
-            historyStats
-        });
-        
+        // DÙNG DUMMY DATA
         res.render("admin-dashboard", {
-            totalApartments: totalApartments || 245,
-            totalResidents: totalResidents || 789,
-            paymentPercentage,
-            unpaidHouseholds,
-            monthlyData,
-            paymentBreakdown,
-            // THÊM MỚI: Truyền dữ liệu lịch sử
-            recentHistory,
-            historyStats
+            totalApartments: 245,
+            totalResidents: 789,
+            paymentPercentage: 75,
+            unpaidHouseholds: 30,
+            monthlyData: [],
+            paymentBreakdown: {
+                onTime: 70,
+                late: 20,
+                unpaid: 30,
+                exempt: 20
+            }
         });
     } catch (error) {
         console.error("Dashboard error:", error);
-        res.status(500).send("Error loading dashboard: " + error.message);
+        res.status(500).send("Error: " + error.message);
     }
 });
 app.get("/api/khoan-thu-history", ensureAuthenticated, ensureAdmin, async (req, res) => {
