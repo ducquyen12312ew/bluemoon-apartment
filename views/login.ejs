@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Blue Moon Apartment Management System</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-blue: #4e73df;
+            --light-blue: #8bb3ff;
+            --dark-blue: #3a5fc8;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            
+            /* BACKGROUND IMAGE - Updated path */
+            background-image: url('/image/background.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: var(--primary-blue); /* Fallback if image fails to load */
+        }
+        
+        .login-container {
+            display: flex;
+            height: 100vh;
+            width: 100%;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 12%;
+        }
+        
+        .login-form {
+            width: 450px; /* Giảm từ 1000px xuống 450px */
+            padding: 40px 35px; /* Giảm từ 120px 100px xuống 40px 35px */
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 20px; /* Giảm từ 50px xuống 20px */
+            backdrop-filter: blur(20px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.25);
+            transform: translateY(0);
+            transition: all 0.4s ease;
+            border: 3px solid rgba(255, 255, 255, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .login-form:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 40px 70px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Background glow effect */
+        .glow {
+            position: absolute;
+            width: 120px; /* Giảm từ 200px */
+            height: 120px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(78, 115, 223, 0.4) 0%, rgba(78, 115, 223, 0) 70%);
+            animation: pulse 10s infinite alternate;
+            z-index: -1;
+        }
+        
+        .glow-1 {
+            top: -60px;
+            left: -60px;
+            animation-delay: 0s;
+        }
+        
+        .glow-2 {
+            bottom: -60px;
+            right: -60px;
+            animation-delay: 5s;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.4;
+            }
+            50% {
+                transform: scale(1.5);
+                opacity: 0.6;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 0.4;
+            }
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 25px; /* Giảm từ 35px */
+            animation: fadeIn 1s ease;
+        }
+        
+        .login-header h2 {
+            font-size: 36px; /* Giảm từ 76px xuống 36px */
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+            color: var(--primary-blue);
+        }
+        
+        .login-subtitle {
+            text-align: center;
+            font-size: 16px; /* Giảm từ 30px xuống 16px */
+            font-weight: 400;
+            color: var(--dark-blue);
+            margin-bottom: 30px; /* Giảm từ 60px */
+            opacity: 0.7;
+            letter-spacing: 0.5px;
+        }
+        
+        .blue-moon {
+            font-weight: 600;
+            color: var(--primary-blue);
+            position: relative;
+            display: inline-block;
+        }
+        
+        .blue-moon::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 3px;
+            bottom: -6px;
+            left: 0;
+            background-color: var(--primary-blue);
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.3s ease;
+        }
+        
+        .login-form:hover .blue-moon::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+        
+        .input-field {
+            background-color: rgba(255, 255, 255, 0.8);
+            border: 3px solid var(--primary-blue);
+            border-radius: 25px; /* Giảm từ 90px xuống 25px */
+            padding: 15px 20px; /* Giảm từ 38px 50px */
+            margin-bottom: 25px; /* Giảm từ 60px */
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .input-field:hover, .input-field:focus-within {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-color: var(--dark-blue);
+            box-shadow: 0 0 30px rgba(78, 115, 223, 0.3);
+            transform: translateY(-3px);
+        }
+        
+        .input-field .icon-container {
+            background-color: var(--primary-blue);
+            color: white;
+            width: 45px; /* Giảm từ 100px xuống 45px */
+            height: 45px; /* Giảm từ 100px xuống 45px */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px; /* Giảm từ 42px */
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .input-field:hover .icon-container,
+        .input-field:focus-within .icon-container {
+            transform: scale(1.1);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+            background-color: var(--dark-blue);
+        }
+        
+        .input-field i {
+            font-size: 18px; /* Giảm từ 40px xuống 18px */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .input-field input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--primary-blue);
+            font-size: 16px; /* Giảm từ 38px xuống 16px */
+            width: 100%;
+        }
+        
+        .input-field input::placeholder {
+            color: rgba(78, 115, 223, 0.7);
+        }
+        
+        .btn-login {
+            background-color: var(--primary-blue);
+            color: white;
+            border: none;
+            border-radius: 25px; /* Giảm từ 90px xuống 25px */
+            padding: 15px; /* Giảm từ 38px xuống 15px */
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            width: 100%;
+            margin-top: 20px; /* Giảm từ 50px */
+            transition: all 0.3s ease;
+            font-size: 16px; /* Giảm từ 40px xuống 16px */
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-login:hover {
+            background-color: var(--dark-blue);
+            transform: translateY(-6px);
+            box-shadow: 0 18px 36px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-login:active {
+            transform: translateY(0);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-login::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.6),
+                transparent
+            );
+            transition: 0.5s;
+        }
+        
+        .btn-login:hover::before {
+            left: 100%;
+        }
+        
+        /* Stars effect */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -2;
+        }
+        
+        .star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            opacity: 0;
+            animation: twinkle var(--duration) ease-in-out infinite;
+            animation-delay: var(--delay);
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; }
+            50% { opacity: var(--opacity); }
+        }
+        
+        /* Enhanced Cloud animation styles */
+        .cloud {
+            position: absolute;
+            z-index: -1;
+            opacity: 0.8;
+            filter: drop-shadow(0 6px 18px rgba(255, 255, 255, 0.3));
+        }
+        
+        .cloud-1 {
+            top: 10%;
+            right: 60%;
+            animation: float-right-to-left 50s linear infinite;
+            transform: scale(1.5); /* Giảm từ 2.3 */
+        }
+        
+        .cloud-2 {
+            top: 25%;
+            left: 50%;
+            animation: float-left-to-right 60s linear infinite;
+            transform: scale(1.8); /* Giảm từ 2.8 */
+        }
+        
+        .cloud-3 {
+            top: 15%;
+            left: 10%;
+            animation: float-left-to-right-slow 70s linear infinite;
+            transform: scale(1.2); /* Giảm từ 1.9 */
+        }
+        
+        .cloud-4 {
+            bottom: 20%;
+            right: 20%;
+            animation: float-right-to-left-slow 65s linear infinite;
+            transform: scale(1.6); /* Giảm từ 2.5 */
+        }
+        
+        .cloud-5 {
+            bottom: 35%;
+            left: 30%;
+            animation: float-bounce 55s linear infinite;
+            transform: scale(1.4); /* Giảm từ 2.2 */
+        }
+        
+        /* Additional clouds */
+        .cloud-6 {
+            top: 45%;
+            right: 30%;
+            animation: float-right-to-left 75s linear infinite;
+            transform: scale(1.9); /* Giảm từ 2.9 */
+        }
+        
+        .cloud-7 {
+            bottom: 15%;
+            left: 15%;
+            animation: float-left-to-right 80s linear infinite;
+            transform: scale(1.5); /* Giảm từ 2.4 */
+        }
+        
+        @keyframes float-right-to-left {
+            0% { transform: translateX(120px) scale(1.5); }
+            50% { transform: translateX(-120px) scale(1.7); }
+            100% { transform: translateX(-360px) scale(1.5); }
+        }
+        
+        @keyframes float-left-to-right {
+            0% { transform: translateX(-240px) scale(1.8); }
+            50% { transform: translateX(120px) scale(2.0); }
+            100% { transform: translateX(480px) scale(1.8); }
+        }
+        
+        @keyframes float-left-to-right-slow {
+            0% { transform: translateX(-180px) scale(1.2); }
+            50% { transform: translateX(120px) scale(1.4); }
+            100% { transform: translateX(420px) scale(1.2); }
+        }
+        
+        @keyframes float-right-to-left-slow {
+            0% { transform: translateX(220px) scale(1.6); }
+            50% { transform: translateX(0px) scale(1.8); }
+            100% { transform: translateX(-340px) scale(1.6); }
+        }
+        
+        @keyframes float-bounce {
+            0% { transform: translate(0, 0) scale(1.4); }
+            25% { transform: translate(120px, -24px) scale(1.5); }
+            50% { transform: translate(240px, 0) scale(1.6); }
+            75% { transform: translate(120px, 24px) scale(1.5); }
+            100% { transform: translate(0, 0) scale(1.4); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Alert styling */
+        .alert-custom {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 15px; /* Giảm từ 30px */
+            margin-bottom: 20px; /* Giảm từ 50px */
+            padding: 15px; /* Giảm từ 30px */
+            font-size: 14px; /* Giảm từ 30px xuống 14px */
+            color: #721c24;
+            border-left: 4px solid #f8d7da;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-6px); }
+            20%, 40%, 60%, 80% { transform: translateX(6px); }
+        }
+
+        @media (max-width: 1440px) {
+            .login-container {
+                justify-content: center;
+                padding-right: 0;
+            }
+            
+            .login-form {
+                width: 90%;
+                max-width: 400px;
+                padding: 35px 30px;
+            }
+            
+            .login-header h2 {
+                font-size: 28px;
+            }
+            
+            .login-subtitle {
+                font-size: 14px;
+                margin-bottom: 25px;
+            }
+            
+            .input-field {
+                padding: 12px 15px;
+                margin-bottom: 20px;
+            }
+            
+            .input-field .icon-container {
+                width: 35px;
+                height: 35px;
+                margin-right: 12px;
+            }
+            
+            .input-field i {
+                font-size: 14px;
+            }
+            
+            .input-field input {
+                font-size: 14px;
+            }
+            
+            .btn-login {
+                padding: 12px;
+                font-size: 14px;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .login-form {
+                width: 95%;
+                padding: 30px 25px;
+            }
+            
+            .login-header h2 {
+                font-size: 24px;
+            }
+            
+            .login-subtitle {
+                font-size: 12px;
+                margin-bottom: 20px;
+            }
+            
+            .input-field {
+                padding: 10px 12px;
+                margin-bottom: 15px;
+                border-width: 2px;
+            }
+            
+            .input-field .icon-container {
+                width: 30px;
+                height: 30px;
+                margin-right: 10px;
+            }
+            
+            .input-field i {
+                font-size: 12px;
+            }
+            
+            .input-field input {
+                font-size: 12px;
+            }
+            
+            .btn-login {
+                padding: 10px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Stars background -->
+    <div class="stars" id="stars"></div>
+    
+    <!-- Enhanced Cloud elements that will show over your background -->
+    <div class="cloud cloud-1">
+        <svg width="200" height="100" viewBox="0 0 200 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="80" cy="50" rx="70" ry="35" fill="white"/>
+            <ellipse cx="130" cy="60" rx="50" ry="25" fill="white"/>
+            <ellipse cx="50" cy="40" rx="40" ry="25" fill="white"/>
+        </svg>
+    </div>
+    
+    <div class="cloud cloud-2">
+        <svg width="220" height="110" viewBox="0 0 220 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="90" cy="55" rx="80" ry="40" fill="white"/>
+            <ellipse cx="150" cy="65" rx="55" ry="28" fill="white"/>
+            <ellipse cx="60" cy="45" rx="45" ry="28" fill="white"/>
+        </svg>
+    </div>
+    
+    <div class="cloud cloud-3">
+        <svg width="180" height="90" viewBox="0 0 180 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="75" cy="45" rx="60" ry="30" fill="white"/>
+            <ellipse cx="120" cy="52" rx="45" ry="22" fill="white"/>
+            <ellipse cx="45" cy="38" rx="37" ry="22" fill="white"/>
+        </svg>
+    </div>
+    
+    <div class="cloud cloud-4">
+        <svg width="240" height="120" viewBox="0 0 240 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="100" cy="60" rx="85" ry="42" fill="white"/>
+            <ellipse cx="160" cy="70" rx="60" ry="30" fill="white"/>
+            <ellipse cx="65" cy="50" rx="50" ry="30" fill="white"/>
+        </svg>
+    </div>
+    
+    <div class="cloud cloud-5">
+        <svg width="200" height="100" viewBox="0 0 200 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="85" cy="50" rx="65" ry="32" fill="white"/>
+            <ellipse cx="135" cy="58" rx="48" ry="24" fill="white"/>
+            <ellipse cx="55" cy="42" rx="42" ry="24" fill="white"/>
+        </svg>
+    </div>
+    
+    <div class="cloud cloud-6">
+        <svg width="250" height="125" viewBox="0 0 250 125" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="110" cy="62" rx="90" ry="45" fill="white"/>
+            <ellipse cx="180" cy="72" rx="55" ry="28" fill="white"/>
+            <ellipse cx="70" cy="52" rx="50" ry="30" fill="white"/>
+        </svg>
+    </div>
+    
+    <div class="cloud cloud-7">
+        <svg width="210" height="105" viewBox="0 0 210 105" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="90" cy="52" rx="75" ry="38" fill="white"/>
+            <ellipse cx="145" cy="62" rx="50" ry="25" fill="white"/>
+            <ellipse cx="60" cy="45" rx="45" ry="25" fill="white"/>
+        </svg>
+    </div>
+    
+    <div class="login-container">
+        <div class="login-form">
+            <!-- Background glow effects -->
+            <div class="glow glow-1"></div>
+            <div class="glow glow-2"></div>
+            
+            <div class="login-header">
+                <h2>ĐĂNG NHẬP</h2>
+            </div>
+            
+            <div class="login-subtitle">
+                Hệ thống quản lý chung cư <span class="blue-moon">Blue Moon</span>
+            </div>
+            
+            <% if (typeof error !== 'undefined') { %>
+                <div class="alert-custom" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <%= error %>
+                </div>
+            <% } %>
+            
+            <form action="/login" method="POST">
+                <div class="input-field">
+                    <div class="icon-container">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <input type="text" id="username" name="username" placeholder="Tên tài khoản" required>
+                </div>
+                
+                <div class="input-field">
+                    <div class="icon-container">
+                        <i class="fas fa-key"></i>
+                    </div>
+                    <input type="password" id="password" name="password" placeholder="Mật khẩu" required>
+                </div>
+                
+                <button type="submit" class="btn-login">ĐĂNG NHẬP</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Script for stars effect -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const starsContainer = document.getElementById('stars');
+            const starsCount = 100;
+            
+            for (let i = 0; i < starsCount; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                
+                // Random position
+                const x = Math.random() * 100;
+                const y = Math.random() * 100;
+                
+                // Random size (1-4px)
+                const size = Math.random() * 3 + 1;
+                
+                // Random opacity and duration
+                const opacity = Math.random() * 0.5 + 0.3;
+                const duration = Math.random() * 3 + 2 + 's';
+                const delay = Math.random() * 5 + 's';
+                
+                star.style.left = x + '%';
+                star.style.top = y + '%';
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                star.style.setProperty('--opacity', opacity);
+                star.style.setProperty('--duration', duration);
+                star.style.setProperty('--delay', delay);
+                
+                starsContainer.appendChild(star);
+            }
+        });
+    </script>
+</body>
+</html>
