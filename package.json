@@ -1,5 +1,5 @@
 {
-  "name": "bluemoon-apartment-management",
+  "name": "bluemoon-apartment",
   "version": "1.0.0",
   "description": "Apartment Management System for Blue Moon",
   "main": "src/index.js",
